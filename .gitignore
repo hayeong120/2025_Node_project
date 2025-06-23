@@ -1,0 +1,32 @@
+# Node modules
+node_modules/
+
+# 환경 변수 파일
+.env
+
+# 로그 파일
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 운영체제별 불필요한 파일
+.DS_Store
+Thumbs.db
+
+# 에디터 설정 파일
+.vscode/
+.idea/
+
+# 빌드 결과물 (선택)
+dist/
+build/
+
+# 테스트 환경
+coverage/
+
+# macOS에서 생기는 메타데이터 파일
+*.DS_Store
+
+# Postman 환경 또는 세션 파일 (필요 없으면 제외)
+.postman_environment.json
+.postman_globals.json

@@ -1,0 +1,25 @@
+{
+  "name": "2025_node_project",
+  "version": "1.0.0",
+  "description": "2025년도 Node 수행평가 프로젝트입니다.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hayeong120/2025_Node_project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hayeong120/2025_Node_project/issues"
+  },
+  "homepage": "https://github.com/hayeong120/2025_Node_project#readme",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  }
+}
