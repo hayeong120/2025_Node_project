@@ -80,6 +80,44 @@ exports.addMusicToPlaylist = async (req, res) => {
   }
 };
 
+// 플레이리스트의 음악 조회
+exports.getPlaylistDetails = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // 1) 플레이리스트 정보 조회
+    const [playlistRows] = await db.execute(
+      `SELECT id, name, subtitle, image_url, created_at 
+        FROM playlists WHERE id = ?`,
+      [id]
+    );
+
+    if (playlistRows.length === 0) {
+      return res.status(404).json({ message: "해당 플레이리스트를 찾을 수 없습니다." });
+    }
+
+    const playlist = playlistRows[0];
+
+    // 2) 음악 목록 조회
+    const [musicRows] = await db.execute(
+      `SELECT id, title, artist, album_art, track_url, created_at 
+        FROM playlist_music 
+        WHERE playlist_id = ? 
+        ORDER BY created_at DESC`,
+      [id]
+    );
+
+    // 3) 종합 응답
+    res.json({
+      playlist,
+      music: musicRows
+    });
+  } catch (err) {
+    res.status(500).json({ message: "상세 조회 실패", error: err.message });
+  }
+};
+
+
 // 플레이리스트의 음악 삭제
 exports.deleteMusicFromPlaylist = async (req, res) => {
   const { id, musicId } = req.params;
@@ -99,3 +137,48 @@ exports.deleteMusicFromPlaylist = async (req, res) => {
     res.status(500).json({ message: "음악 삭제 실패", error: err.message });
   }
 };
+
+// 플레이리스트 수정
+exports.updatePlaylist = async (req, res) => {
+  const { id } = req.params;
+  const { name, subtitle, image_url } = req.body;
+
+  try {
+    const [result] = await db.execute(
+      `UPDATE playlists 
+        SET name = ?, subtitle = ?, image_url = ? 
+        WHERE id = ?`,
+      [name, subtitle, image_url, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "해당 플레이리스트가 존재하지 않습니다." });
+    }
+
+    res.json({ message: "플레이리스트 수정 완료" });
+  } catch (err) {
+    res.status(500).json({ message: "수정 실패", error: err.message });
+  }
+};
+
+
+// 플레이리스트 삭제
+exports.deletePlaylist = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.execute(
+      "DELETE FROM playlists WHERE id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "해당 플레이리스트가 존재하지 않습니다." });
+    }
+
+    res.json({ message: "플레이리스트 삭제 완료" });
+  } catch (err) {
+    res.status(500).json({ message: "삭제 실패", error: err.message });
+  }
+};
+
