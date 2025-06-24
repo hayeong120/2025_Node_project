@@ -22,7 +22,7 @@ exports.createPlaylist = async (req, res) => {
       image_url,
     });
   } catch (err) {
-    res.status(201).json({ id: result.insertId, name, subtitle, image_url });
+    res.status(500).json({ message: "플레이리스트 생성 실패", error: err.message });
   }
 };
 
@@ -30,7 +30,7 @@ exports.createPlaylist = async (req, res) => {
 exports.getAllPlaylists = async (req, res) => {
   try {
     const [rows] = await db.execute(
-      "SELECT id, name, subtitle, image_url, created_at FROM playlists ORDER BY created_at DESC"
+      "SELECT id, name, subtitle, image_url, created_at FROM playlists ORDER BY created_at ASC"
     );
     res.json(rows);
   } catch (err) {
@@ -58,20 +58,63 @@ exports.getPlaylistById = async (req, res) => {
   }
 };
 
+// 플레이리스트 수정
+exports.updatePlaylist = async (req, res) => {
+  const { id } = req.params;
+  const { name, subtitle, image_url } = req.body;
+
+  try {
+    const [result] = await db.execute(
+      `UPDATE playlists 
+        SET name = ?, subtitle = ?, image_url = ? 
+        WHERE id = ?`,
+      [name, subtitle, image_url, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "해당 플레이리스트가 존재하지 않습니다." });
+    }
+
+    res.json({ message: "플레이리스트 수정 완료" });
+  } catch (err) {
+    res.status(500).json({ message: "수정 실패", error: err.message });
+  }
+};
+
+// 플레이리스트 삭제
+exports.deletePlaylist = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.execute(
+      "DELETE FROM playlists WHERE id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "해당 플레이리스트가 존재하지 않습니다." });
+    }
+
+    res.json({ message: "플레이리스트 삭제 완료" });
+  } catch (err) {
+    res.status(500).json({ message: "삭제 실패", error: err.message });
+  }
+};
+
 // 플레이리스트의 음악 추가
 exports.addMusicToPlaylist = async (req, res) => {
   const { id } = req.params; // playlist_id
   const { title, artist, album_art, track_url } = req.body;
 
-  if (!title) {
-    return res.status(400).json({ message: "title은 필수입니다." });
+  if (!title || !artist || !album_art) {
+    return res.status(400).json({ message: "title, artist, album_art는 모두 필수입니다." });
   }
 
   try {
     await db.execute(
       `INSERT INTO playlist_music (playlist_id, title, artist, album_art, track_url)
         VALUES (?, ?, ?, ?, ?)`,
-      [id, title, artist || null, album_art || null, track_url || null]
+      [id, title, artist, album_art, track_url || null]
     );
 
     res.status(201).json({ message: "음악 추가 완료" });
@@ -82,12 +125,12 @@ exports.addMusicToPlaylist = async (req, res) => {
 
 // 플레이리스트의 음악 조회
 exports.getPlaylistDetails = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params;  // playlist_id
 
   try {
     // 1) 플레이리스트 정보 조회
     const [playlistRows] = await db.execute(
-      `SELECT id, name, subtitle, image_url, created_at 
+      `SELECT id, name, subtitle, image_url, created_at  
         FROM playlists WHERE id = ?`,
       [id]
     );
@@ -103,7 +146,7 @@ exports.getPlaylistDetails = async (req, res) => {
       `SELECT id, title, artist, album_art, track_url, created_at 
         FROM playlist_music 
         WHERE playlist_id = ? 
-        ORDER BY created_at DESC`,
+        ORDER BY created_at ASC`,
       [id]
     );
 
@@ -137,48 +180,3 @@ exports.deleteMusicFromPlaylist = async (req, res) => {
     res.status(500).json({ message: "음악 삭제 실패", error: err.message });
   }
 };
-
-// 플레이리스트 수정
-exports.updatePlaylist = async (req, res) => {
-  const { id } = req.params;
-  const { name, subtitle, image_url } = req.body;
-
-  try {
-    const [result] = await db.execute(
-      `UPDATE playlists 
-        SET name = ?, subtitle = ?, image_url = ? 
-        WHERE id = ?`,
-      [name, subtitle, image_url, id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "해당 플레이리스트가 존재하지 않습니다." });
-    }
-
-    res.json({ message: "플레이리스트 수정 완료" });
-  } catch (err) {
-    res.status(500).json({ message: "수정 실패", error: err.message });
-  }
-};
-
-
-// 플레이리스트 삭제
-exports.deletePlaylist = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const [result] = await db.execute(
-      "DELETE FROM playlists WHERE id = ?",
-      [id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "해당 플레이리스트가 존재하지 않습니다." });
-    }
-
-    res.json({ message: "플레이리스트 삭제 완료" });
-  } catch (err) {
-    res.status(500).json({ message: "삭제 실패", error: err.message });
-  }
-};
-

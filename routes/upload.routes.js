@@ -9,9 +9,9 @@ const storage = multer.diskStorage({
     cb(null, "public/uploads/");
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const base = path.basename(file.originalname, ext);
-    cb(null, base + "-" + Date.now() + ext);
+    const ext = path.extname(file.originalname);  // 확장자
+    const base = path.basename(file.originalname, ext); // 확장자를 제외한 이름
+    cb(null, base + "-" + Date.now() + ext);  // 중복 방지를 위해 타임스탬프 추가
   },
 });
 

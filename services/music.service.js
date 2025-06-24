@@ -4,9 +4,9 @@ const axios = require("axios");
 exports.searchMusic = async (query) => {
   const response = await axios.get("https://itunes.apple.com/search", {
     params: {
-      term: query,
-      limit: 10,
-      media: "music",
+      term: query,  // 검색어
+      limit: 15,  // 결과 수
+      media: "music", // 미디어 타입
     },
   });
 
@@ -14,6 +14,6 @@ exports.searchMusic = async (query) => {
     title: item.trackName,
     artist: item.artistName,
     album_art: item.artworkUrl100,
-    track_url: item.trackViewUrl,
+    track_url: item.trackViewUrl, // iTunes에서 해당 곡으로 이동하는 링크
   }));
 };

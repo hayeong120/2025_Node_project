@@ -11,7 +11,6 @@ app.use("/uploads", express.static("public/uploads"));
 const playlistRoutes = require("./routes/playlist.routes");
 const musicRoutes = require("./routes/music.routes");
 const uploadRoutes = require("./routes/upload.routes");
-console.log("uploadRoutes type:", typeof uploadRoutes);
 
 app.use("/api/playlists", playlistRoutes);
 app.use("/api/music", musicRoutes);
@@ -19,5 +18,5 @@ app.use("/api/upload", uploadRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
